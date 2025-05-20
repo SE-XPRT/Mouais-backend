@@ -36,4 +36,6 @@ router.delete("/deleteAll/:userId", async (req, res) => {
     result: true,
     message: "All photos deleted successfully",
   });
-})
+});
+
+module.exports = router;
