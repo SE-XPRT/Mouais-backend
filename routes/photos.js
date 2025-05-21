@@ -2,6 +2,23 @@ const express = require("express");
 const router = express.Router();
 const Photos = require("../models/photos");
 
+router.post("/upload", async (req, res) => {
+  const { userToken, imageUrl } = req.body;
+  if (!userToken || !imageUrl) {
+    return res.status(400).json({ message: "User ID and image URL are required" });
+  } 
+  const newPhoto = new Photos({
+    userToken: userToken,
+    imageUrl: imageUrl,
+  });
+  
+    const savedPhoto = await newPhoto.save();
+    res.json({
+      result: true,
+      photo: savedPhoto,
+    });
+});
+
 router.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
   const photos = await Photos.find({ userId: userId });
