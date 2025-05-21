@@ -12,7 +12,8 @@ router.post("/upload", async (req, res) => {
     imageUrl: imageUrl,
   });
   
-    const savedPhoto = await newPhoto.save();
+  const savedPhoto = await newPhoto.save();
+  console.log("New photo data:", newPhoto);
     res.json({
       result: true,
       photo: savedPhoto,
