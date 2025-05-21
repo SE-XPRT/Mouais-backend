@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const analyzeSchema = mongoose.Schema(
   {
     tone: String,
+    score: Number,
     criteria: {
       cheveux: Number,
       smile: Number,
