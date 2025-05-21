@@ -16,7 +16,8 @@
     "mongodb": "^6.16.0",
     "mongoose": "^8.15.0",
     "morgan": "~1.9.1",
-    "uid2": "^1.0.0"
+    "uid2": "^1.0.0",
+    "uniqid": "^5.4.0"
   },
   "devDependencies": {
     "jest": "^29.7.0"
