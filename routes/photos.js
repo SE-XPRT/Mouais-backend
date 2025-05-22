@@ -56,4 +56,29 @@ router.delete("/deleteAll/:userId", async (req, res) => {
   });
 });
 
+// Route pour ajouter les filtres
+router.post("/analyze", (req, res) => {
+  const { filters } = req.body;
+
+  if (!filters) {
+    return res.status(400).json({ message: "Filtres manquants dans le body" });
+  }
+
+  const { zones, tone } = filters;
+
+  console.log("Analyse reçue !");
+  console.log("Zones activées :", zones);
+  console.log("Degré de gentillesse :", tone);
+
+  // On renvoie les filtres reçus
+  res.json({
+    result: true,
+    message: "Analyse bien reçue",
+    filters: {
+      zones,
+      tone,
+    },
+  });
+});
+
 module.exports = router;
