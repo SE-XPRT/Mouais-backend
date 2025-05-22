@@ -70,17 +70,84 @@ router.post("/delete", (req, res) => {
 });
 
 router.get("/get", (req, res) => {
-  if (!checkBody(req.body, ["token"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+  const token = req.query.token; // Récupérer le token depuis les query params
+
+  if (!token) {
+    res.json({ result: false, error: "Missing token" });
     return;
   }
 
-  User.findOne({ token: req.body.token }).then((result) => {
+  User.findOne({ token: token }).then((result) => {
     if (result) {
-      res.json({ result: true, message: result.token + "User trouver" });
+      res.json({
+        result: true,
+        email: result.email,
+        pseudo: result.pseudo || "", // Renvoyer le pseudo s'il existe, sinon une chaîne vide
+        message: "User found",
+      });
     } else {
       res.json({ result: false, error: "User not found" });
     }
   });
 });
+
+router.post("/updateInfos", (req, res) => {
+  if (!checkBody(req.body, ["token", "email"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  }
+  User.updateOne(
+    { token: req.body.token },
+    { $set: { email: req.body.email } }
+  ).then((result) => {
+    if (result.modifiedCount > 0) {
+      res.json({ result: true, message: "User updated" });
+    } else {
+      res.json({ result: false, error: "User not found" });
+    }
+  });
+});
+
+router.post("/updatePseudo", async (req, res) => {
+  // Vérifier si le token est dans le body ou dans les query params
+  const token = req.body.token || req.query.token;
+  const pseudo = req.body.pseudo;
+
+  if (!token || !pseudo) {
+    return res.json({ result: false, error: "Missing token or pseudo" });
+  }
+
+  try {
+    const updatedUser = await User.findOneAndUpdate(
+      { token: token },
+      { $set: { pseudo: pseudo } },
+      { new: true }
+    );
+
+    if (updatedUser) {
+      res.json({
+        result: true,
+        pseudo: updatedUser.pseudo,
+        message: "Pseudo updated successfully",
+      });
+    } else {
+      res.json({ result: false, error: "User not found" });
+    }
+  } catch (error) {
+    console.error("Error updating pseudo:", error);
+    res.status(500).json({ result: false, error: "Error updating pseudo" });
+  }
+});
+
+router.post("/logout", (req, res) => {
+  const token = req.body.token;
+
+  if (!token) {
+    res.json({ result: false, error: "Missing token" });
+    return;
+  }
+
+  res.json({ result: true, message: "Logged out successfully" });
+});
+
 module.exports = router;
