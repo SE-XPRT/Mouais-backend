@@ -54,4 +54,33 @@ router.post("/signin", (req, res) => {
   });
 });
 
+router.post("/delete", (req, res) => {
+  if (!checkBody(req.body, ["token"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  }
+  // user delete par le token
+  User.deleteOne({ token: req.body.token }).then((result) => {
+    if (result.deletedCount > 0) {
+      res.json({ result: true, message: "User supprimer" });
+    } else {
+      res.json({ result: false, error: "User not found" });
+    }
+  });
+});
+
+router.get("/get", (req, res) => {
+  if (!checkBody(req.body, ["token"])) {
+    res.json({ result: false, error: "Missing or empty fields" });
+    return;
+  }
+
+  User.findOne({ token: req.body.token }).then((result) => {
+    if (result) {
+      res.json({ result: true, message: result.token + "User trouver" });
+    } else {
+      res.json({ result: false, error: "User not found" });
+    }
+  });
+});
 module.exports = router;
