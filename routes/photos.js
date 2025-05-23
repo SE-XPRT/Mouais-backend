@@ -1,23 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const Photos = require("../models/photos");
+const User = require("../models/users");
 
 router.post("/upload", async (req, res) => {
   const { userToken, imageUrl } = req.body;
   if (!userToken || !imageUrl) {
-    return res.status(400).json({ message: "User ID and image URL are required" });
-  } 
+    return res
+      .status(400)
+      .json({ message: "User ID and image URL are required" });
+  }
   const newPhoto = new Photos({
     userToken: userToken,
     imageUrl: imageUrl,
+    uploadAt: new Date(),
+    analyse: [], // ajoute un tableau analyse vide par défaut
+    tags: [],
   });
-  
+
   const savedPhoto = await newPhoto.save();
   console.log("New photo data:", newPhoto);
-    res.json({
-      result: true,
-      photo: savedPhoto,
-    });
+  res.json({
+    result: true,
+    photo: savedPhoto,
+  });
 });
 
 router.get("/:userId", async (req, res) => {
@@ -57,28 +63,54 @@ router.delete("/deleteAll/:userId", async (req, res) => {
 });
 
 // Route pour ajouter les filtres
-router.post("/analyze", (req, res) => {
-  const { filters } = req.body;
+router.post("/analyze", async (req, res) => {
+  const { token, photoId, filters } = req.body;
 
-  if (!filters) {
-    return res.status(400).json({ message: "Filtres manquants dans le body" });
+  if (!token || !photoId || !filters) {
+    return res
+      .status(400)
+      .json({ result: false, message: "Token, photoId ou filtres manquants" });
   }
 
-  const { zones, tone } = filters;
+  try {
+    // Vérifier que le user existe
+    const user = await User.findOne({ token });
+    if (!user) {
+      return res
+        .status(404)
+        .json({ result: false, message: "Utilisateur non trouvé" });
+    }
 
-  console.log("Analyse reçue !");
-  console.log("Zones activées :", zones);
-  console.log("Degré de gentillesse :", tone);
+    // Ajouter les filtres à la photo correspondante
+    const updatedPhoto = await Photos.findByIdAndUpdate(
+      photoId,
+      {
+        $push: {
+          // Ajouter un élément dans un tableau existant dans un document
+          analyse: {
+            ...filters, // Operation spread pour 'déplier' tous les champs de l'objet filters
+            createdAt: new Date(), // Ajout d'une date de création à chaque analyse
+          },
+        },
+      },
+      { new: true }
+    );
 
-  // On renvoie les filtres reçus
-  res.json({
-    result: true,
-    message: "Analyse bien reçue",
-    filters: {
-      zones,
-      tone,
-    },
-  });
+    if (!updatedPhoto) {
+      return res
+        .status(404)
+        .json({ result: false, message: "Photo non trouvée" });
+    }
+
+    res.json({
+      result: true,
+      message: "Analyse enregistrée",
+      photo: updatedPhoto,
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+    res.status(500).json({ result: false, message: "Erreur serveur" });
+  }
 });
 
 module.exports = router;
