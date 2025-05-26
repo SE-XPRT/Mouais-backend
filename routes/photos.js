@@ -367,7 +367,7 @@ router.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
   const photos = await Photos.find({ userId: userId });
   if (!photos) {
-    return res.status(404).json({ message: "Photos not found" });
+    return res.status(404).json({ message: "Photos inexistante" });
   }
   res.json({
     result: true,
@@ -379,11 +379,11 @@ router.delete("/:photoId", async (req, res) => {
   const photoId = req.params.photoId;
   const photo = await Photos.findByIdAndDelete(photoId);
   if (!photo) {
-    return res.status(404).json({ message: "Photo not found" });
+    return res.status(404).json({ message: "Photo inexistante" });
   }
   res.json({
     result: true,
-    message: "Photo deleted successfully",
+    message: "Photo supprimée avec succès",
   });
 });
 
@@ -391,11 +391,11 @@ router.delete("/deleteAll/:userId", async (req, res) => {
   const userId = req.params.userId;
   const photos = await Photos.deleteMany({ userId: userId });
   if (!photos) {
-    return res.status(404).json({ message: "Photos not found" });
+    return res.status(404).json({ message: "Photos inexistante" });
   }
   res.json({
     result: true,
-    message: "All photos deleted successfully",
+    message: "Toutes les photos ont été supprimées avec succès",
   });
 });
 
