@@ -10,11 +10,6 @@ const mongoose = require("mongoose");
 // 📦 On importe le modèle User pour interagir avec la collection users
 const User = require("../models/users");
 
-// 🧹 Après chaque test : on vide la collection des utilisateurs pour avoir un état propre
-afterEach(async () => {
-  await User.deleteMany();
-});
-
 // ❌ Après tous les tests : on ferme la connexion MongoDB
 afterAll(async () => {
   await mongoose.disconnect();

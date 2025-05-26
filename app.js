@@ -10,6 +10,7 @@ var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const photosRouter = require("./routes/photos");
 const dashboardRouter = require("./routes/dashboard");
+const badgesRoutes = require("./routes/badges");
 
 var app = express();
 
@@ -23,5 +24,6 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/photos", photosRouter);
 app.use("/dashboard", dashboardRouter);
+app.use("/badges", badgesRoutes);
 
 module.exports = app;
