@@ -22,10 +22,11 @@ router.post("/signup", (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
+        coins: req.body.coins + 5
       });
 
       newUser.save().then((newDoc) => {
-        res.json({ result: true, token: newDoc.token });
+        res.json({ result: true, token: newDoc.token, coins: newDoc.coins });
         console.log("User created");
       });
     } else {
