@@ -330,11 +330,28 @@ const analyze = [
 router.post("/upload", async (req, res) => {
   const { userToken, imageUrl } = req.body;
   if (!userToken || !imageUrl) {
-    return res.status(400).json({ message: "User ID and image URL are required" });
-  } 
+    return res
+      .status(400)
+      .json({ message: "User ID and image URL are required" });
+  }
+
+  // Sélection aléatoire d’un profil d’analyse
+  const index = Math.floor(Math.random() * analyze.length);
+  const { tone, score, criteria, comment } = analyze[index];
+
   const newPhoto = new Photos({
     userToken: userToken || "invité",
     imageUrl: imageUrl,
+    uploadAt: new Date(),
+    analyse: [
+      {
+        tone,
+        score,
+        criteria,
+        comment,
+        createAt: new Date(),
+      },
+    ],
   });
 
   const savedPhoto = await newPhoto.save();
@@ -344,6 +361,7 @@ router.post("/upload", async (req, res) => {
     photo: savedPhoto,
   });
 });
+
 
 router.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
