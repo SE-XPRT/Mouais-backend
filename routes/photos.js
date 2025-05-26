@@ -326,22 +326,48 @@ const analyze = [
   },
 ];
 
-
 router.post("/upload", async (req, res) => {
   const { userToken, imageUrl } = req.body;
+
   if (!userToken || !imageUrl) {
     return res
       .status(400)
-      .json({ message: "User ID and image URL are required" });
+      .json({ result: false, message: "Token ou image manquant" });
   }
 
-  // Sélection aléatoire d’un profil d’analyse
   const index = Math.floor(Math.random() * analyze.length);
   const { tone, score, criteria, comment } = analyze[index];
 
+  if (userToken === "invité") {
+    return res.json({
+      result: true,
+      photo: {
+        userId: null,
+        imageUrl,
+        analyse: [
+          {
+            tone,
+            score,
+            criteria,
+            comment,
+            createAt: new Date(),
+          },
+        ],
+        uploadAt: new Date(),
+      },
+    });
+  }
+
+  const user = await User.findOne({ token: userToken });
+  if (!user) {
+    return res
+      .status(404)
+      .json({ result: false, message: "Utilisateur non trouvé" });
+  }
+
   const newPhoto = new Photos({
-    userToken: userToken || "invité",
-    imageUrl: imageUrl,
+    userId: user._id,
+    imageUrl,
     uploadAt: new Date(),
     analyse: [
       {
@@ -355,13 +381,12 @@ router.post("/upload", async (req, res) => {
   });
 
   const savedPhoto = await newPhoto.save();
-  console.log("New photo data:", newPhoto);
+
   res.json({
     result: true,
     photo: savedPhoto,
   });
 });
-
 
 router.get("/:userId", async (req, res) => {
   const userId = req.params.userId;
