@@ -7,6 +7,10 @@ const Badge = require("../models/badges");
 
 // GET /dashboard/:token
 router.get("/:token", async (req, res) => {
+  console.log("Token reçu :", req.params.token);
+  const users = await User.find({});
+  console.log("Users in BDD:", users);
+  console.log("Route dashboard appelée, token:", req.params.token);
   const user = await User.findOne({ token: req.params.token });
 
   if (!user) {
@@ -38,6 +42,8 @@ router.get("/:token", async (req, res) => {
   const badges = await Badge.find({ userId: user._id }); // badge gagné par un user
   const badgeNames = badges.map((badge) => badge.name); // on renvoie un tableau avec les noms des badges
 
+  console.log("USER FOUND", user);
+
   res.json({
     result: true,
     userName: user.pseudo || "beau / belle gosse", // permet de fallbacker si le pseudo n'est pas encore défini
@@ -47,6 +53,29 @@ router.get("/:token", async (req, res) => {
     bestPhoto, // cf ligne 18
     badgeNames, // cf ligne 39
   });
+});
+
+
+router.get("/email/:email", async (req, res) => {
+  const email = req.params.email;
+  console.log("Email reçu :", email);
+
+  try {
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res.status(404).json({ result: false, error: "User not found by email" });
+    }
+
+    res.json({
+      result: true,
+      message: "User found with email",
+      user,
+    });
+  } catch (error) {
+    console.error("Erreur recherche email :", error);
+    res.status(500).json({ result: false, error: "Erreur serveur" });
+  }
 });
 
 module.exports = router;
