@@ -1,8 +1,9 @@
 const request = require('supertest');
-const app = require('../app');
+const app = require('../app'); 
 const Photos = require('../models/photos');
+const mongoose = require('mongoose');
 
-jest.mock('../models/photos');
+jest.mock('../models/photos'); 
 
 describe('DELETE /photos/:photoId', () => {
   it('renvoie 200 si la photo est supprimée', async () => {
@@ -13,7 +14,7 @@ describe('DELETE /photos/:photoId', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.result).toBe(true);
-    expect(res.body.message).toBe('Photo supprimée avec succès');
+    expect(res.body.message).toBe('Photo supprimée avec succès'); 
   });
 
   it('renvoie 404 si la photo est introuvable', async () => {
@@ -22,6 +23,10 @@ describe('DELETE /photos/:photoId', () => {
     const res = await request(app).delete('/photos/invalide');
 
     expect(res.statusCode).toBe(404);
-    expect(res.body.message).toBe('Photo not found');
+    expect(res.body.message).toBe('Photo inexistante');
+  });
+
+  afterAll(async () => {
+    await mongoose.connection.close(); 
   });
 });

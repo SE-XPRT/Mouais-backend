@@ -379,7 +379,7 @@ router.delete("/:photoId", async (req, res) => {
   const photoId = req.params.photoId;
   const photo = await Photos.findByIdAndDelete(photoId);
   if (!photo) {
-    return res.status(404).json({ message: "Photos inexistante" });
+    return res.status(404).json({ message: "Photo inexistante" });
   }
   res.json({
     result: true,
