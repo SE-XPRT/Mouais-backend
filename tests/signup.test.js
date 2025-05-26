@@ -24,7 +24,7 @@ afterAll(async () => {
 describe("POST /signup", () => {
   // ✅ Test 1 : créer un nouvel utilisateur si email et password sont valides
   it("devrait créer un nouvel utilisateur", async () => {
-    const res = await request(app).post("/signup").send({
+    const res = await request(app).post("/users/signup").send({
       email: "test@example.com",
       password: "123456",
     });
@@ -49,7 +49,7 @@ describe("POST /signup", () => {
     }).save();
 
     // On tente de s’inscrire avec le même email
-    const res = await request(app).post("/signup").send({
+    const res = await request(app).post("/users/signup").send({
       email: "duplicate@example.com",
       password: "123456",
     });
@@ -64,7 +64,7 @@ describe("POST /signup", () => {
   // ❌ Test 3 : empêcher l’inscription si un champ est manquant
   it("devrait échouer si des champs sont manquants", async () => {
     // Ici on oublie le champ "password"
-    const res = await request(app).post("/signup").send({
+    const res = await request(app).post("/users/signup").send({
       email: "test@example.com",
     });
 
