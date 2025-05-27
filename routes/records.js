@@ -1,31 +1,53 @@
 const express = require("express");
 const router = express.Router();
 const Record = require("../models/records");
+const User = require("../models/users");
 
-// GET /records/:userId
-router.get("/:userId", async (req, res) => {
+// GET /records/:token
+router.get("/:token", async (req, res) => {
   try {
-    const record = await Record.findOne({ userId: req.params.userId });
-    if (!record) return res.status(404).json({ message: "Record not found" });
+    console.log("Recherche user avec token:", req.params.token);
+    const user = await User.findOne({ token: req.params.token });
+    if (!user) {
+      console.log("Aucun utilisateur trouvé !");
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    let record = await Record.findOne({ userId: user._id });
+
+    if (!record) {
+      record = new Record({
+        userId: user._id,
+        photosTaken: 0,
+        averageRate: 0,
+        averagePhotosPerDay: 0,
+      });
+      await record.save();
+      return res.status(201).json(record); // 201 = Created
+    }
+
     res.json(record);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
 // POST /records
 router.post("/", async (req, res) => {
-  const { userId } = req.body;
+  const { token } = req.body;
 
   try {
-    // Check if record already exists
-    const existingRecord = await Record.findOne({ userId });
+    const user = await User.findOne({ token });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const existingRecord = await Record.findOne({ userId: user._id });
     if (existingRecord) {
       return res.status(400).json({ message: "Record already exists" });
     }
 
     const newRecord = new Record({
-      userId,
+      userId: user._id,
       photosTaken: 0,
       averageRate: 0,
       averagePhotosPerDay: 0,
@@ -38,18 +60,21 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /records/:userId
-router.put("/:userId", async (req, res) => {
+// PUT /records/:token
+router.put("/:token", async (req, res) => {
   const { newRate } = req.body;
 
   try {
-    const record = await Record.findOne({ userId: req.params.userId });
+    const user = await User.findOne({ token: req.params.token });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const record = await Record.findOne({ userId: user._id });
     if (!record) return res.status(404).json({ message: "Record not found" });
 
-    // Update photos taken
+    // Update photosTaken
     record.photosTaken += 1;
 
-    // Update average rate
+    // Update averageRate
     const totalRate = record.averageRate * (record.photosTaken - 1) + newRate;
     record.averageRate = totalRate / record.photosTaken;
 
