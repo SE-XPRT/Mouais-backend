@@ -388,17 +388,29 @@ router.post("/upload", async (req, res) => {
   });
 });
 
-router.get("/:userId", async (req, res) => {
-  const userId = req.params.userId;
-  const photos = await Photos.find({ userId: userId });
-  if (!photos) {
-    return res.status(404).json({ message: "Photos inexistante" });
+router.get("/", async (req, res) => {
+  const { token } = req.query;
+
+  if (!token) {
+    return res.status(400).json({ result: false, message: "Token manquant" });
   }
+
+  const user = await User.findOne({ token });
+  if (!user) {
+    return res.status(404).json({ result: false, message: "Utilisateur non trouvé" });
+  }
+
+  const photos = await Photos.find({ userId: user._id });
+  if (!photos) {
+    return res.status(404).json({ result: false, message: "Aucune photo trouvée" });
+  }
+
   res.json({
     result: true,
     photos,
   });
 });
+
 
 router.delete("/:photoId", async (req, res) => {
   const photoId = req.params.photoId;
