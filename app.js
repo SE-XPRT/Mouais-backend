@@ -11,6 +11,7 @@ var usersRouter = require("./routes/users");
 const photosRouter = require("./routes/photos");
 const dashboardRouter = require("./routes/dashboard");
 const badgesRoutes = require("./routes/badges");
+const recordsRoutes = require("./routes/records");
 
 var app = express();
 
@@ -25,5 +26,6 @@ app.use("/users", usersRouter);
 app.use("/photos", photosRouter);
 app.use("/dashboard", dashboardRouter);
 app.use("/badges", badgesRoutes);
+app.use("/records", recordsRoutes);
 
 module.exports = app;

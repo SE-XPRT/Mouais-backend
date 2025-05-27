@@ -22,7 +22,7 @@ router.post("/signup", (req, res) => {
         email: req.body.email,
         password: hash,
         token: uid2(32),
-        coins: req.body.coins + 5
+        coins: (req.body.coins || 0) + 5,
       });
 
       newUser.save().then((newDoc) => {

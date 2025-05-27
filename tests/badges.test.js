@@ -4,28 +4,11 @@ const mongoose = require("mongoose");
 const User = require("../models/users");
 const Badge = require("../models/badges");
 
-beforeAll(async () => {
-  // Connexion à la base de données avant les tests
-  await mongoose.connect(process.env.CONNECTION_STRING, {
-    connectTimeoutMS: 2000,
-  });
-  console.log("Database connected");
-});
-
-afterAll(async () => {
-  // Déconnexion de la base de données après les tests
-  await mongoose.disconnect();
-  console.log("Database disconnected");
-});
-
 describe("POST /badges/user/:userId", () => {
   let user;
   let badge;
 
-  beforeEach(async () => {
-    await User.deleteMany({});
-    await Badge.deleteMany({});
-
+  beforeAll(async () => {
     user = await User.create({
       email: "test@test.com",
       password: "1234",
