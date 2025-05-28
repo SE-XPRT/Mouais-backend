@@ -49,7 +49,7 @@ const analyze = [
       cheveux: "Coiffure simple mais propre.",
       smile: "Beau sourire, très communicatif.",
       makeup: "Maquillage bien maîtrisé.",
-      outfit: "Look sympa, peut encore s’affiner.",
+      outfit: "Look sympa, peut encore s’améliorer.",
     },
   },
   {
@@ -192,7 +192,7 @@ const analyze = [
     comment: {
       cheveux: "Très beau rendu des cheveux.",
       smile: "Sourire agréable et franc.",
-      makeup: "Application parfaite.",
+      makeup: "Un.e vrai.e pro du fond de teint.",
       outfit: "Superbe ensemble.",
     },
   },
@@ -224,7 +224,7 @@ const analyze = [
     comment: {
       cheveux: "Peut-être besoin d’un petit coup de peigne.",
       smile: "Sourire timide mais présent.",
-      makeup: "Léger, mais ça fonctionne.",
+      makeup: "Léger, mais ça passe.",
       outfit: "Style discret.",
     },
   },
@@ -397,12 +397,16 @@ router.get("/", async (req, res) => {
 
   const user = await User.findOne({ token });
   if (!user) {
-    return res.status(404).json({ result: false, message: "Utilisateur non trouvé" });
+    return res
+      .status(404)
+      .json({ result: false, message: "Utilisateur non trouvé" });
   }
 
   const photos = await Photos.find({ userId: user._id });
   if (!photos) {
-    return res.status(404).json({ result: false, message: "Aucune photo trouvée" });
+    return res
+      .status(404)
+      .json({ result: false, message: "Aucune photo trouvée" });
   }
 
   res.json({
@@ -410,7 +414,6 @@ router.get("/", async (req, res) => {
     photos,
   });
 });
-
 
 router.delete("/:photoId", async (req, res) => {
   const photoId = req.params.photoId;
