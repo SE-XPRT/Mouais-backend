@@ -9,12 +9,12 @@ const Badge = require("../models/badges");
 router.get("/:token", async (req, res) => {
   console.log("Token reçu :", req.params.token);
   const users = await User.find({});
-  console.log("Users in BDD:", users);
-  console.log("Route dashboard appelée, token:", req.params.token);
+  console.log("Utilisateurs en BDD :", users);
+  console.log("Route dashboard appelée, token :", req.params.token);
   const user = await User.findOne({ token: req.params.token });
 
   if (!user) {
-    return res.status(404).json({ result: false, error: "User not found" });
+    return res.status(404).json({ result: false, error: "Utilisateur non trouvé" });
   }
 
   const photos = await Photo.find({ userId: user._id });
@@ -22,40 +22,37 @@ router.get("/:token", async (req, res) => {
   const bestPhoto =
     photos.length > 0
       ? photos.reduce((top, current) => {
-          // top = accumulateur donc meilleure photo actuelle et current = photo qu'on est en train d'examiner dans la boucle
-          const topScore = top.analyse[0]?.score || 0; // récupération du meilleur score de l'analyse (cf model photo (sous document analyse))
-          const currScore = current.analyse[0]?.score || 0; // récupération du score de la photo actuelle
-          return currScore > topScore ? current : top; // comparaison meilleur score et score actuel
+          const topScore = top.analyse[0]?.score || 0;
+          const currScore = current.analyse[0]?.score || 0;
+          return currScore > topScore ? current : top;
         })
       : null;
 
-  const record = await Record.findOne({ userId: user._id }); // va chercher les records du user
+  const record = await Record.findOne({ userId: user._id });
+  const averageScore = record ? record.averageRate : null;
 
-  const averageScore = record ? record.averageRate : null; // va chercher le score moyen dans les records du user
-
-  // comparaison score max et score actuel
   const bestScore = photos.reduce((max, photo) => {
     const score = photo.analyse[0]?.score || 0;
     return score > max ? score : max;
   }, 0);
 
-  const badges = await Badge.find({ userId: user._id }); // badge gagné par un user
-  const badgeNames = badges.map((badge) => badge.name); // on renvoie un tableau avec les noms des badges
+  const badges = await Badge.find({ userId: user._id });
+  const badgeNames = badges.map((badge) => badge.name);
 
-  console.log("USER FOUND", user);
+  console.log("Utilisateur trouvé :", user);
 
   res.json({
     result: true,
-    userName: user.pseudo || "beau / belle gosse", // permet de fallbacker si le pseudo n'est pas encore défini
-    coins: user.coins || 0, // va chercher les coins restants du user
-    averageScore, // cf ligne 30
-    bestScore, // cf ligne 33
-    bestPhoto, // cf ligne 18
-    badgeNames, // cf ligne 39
+    userName: user.pseudo || "bg",
+    coins: user.coins || 0,
+    averageScore,
+    bestScore,
+    bestPhoto,
+    badgeNames,
   });
 });
 
-
+// GET /dashboard/email/:email
 router.get("/email/:email", async (req, res) => {
   const email = req.params.email;
   console.log("Email reçu :", email);
@@ -64,16 +61,16 @@ router.get("/email/:email", async (req, res) => {
     const user = await User.findOne({ email: email });
 
     if (!user) {
-      return res.status(404).json({ result: false, error: "User not found by email" });
+      return res.status(404).json({ result: false, error: "Utilisateur non trouvé avec cet e-mail" });
     }
 
     res.json({
       result: true,
-      message: "User found with email",
+      message: "Utilisateur trouvé avec cet e-mail",
       user,
     });
   } catch (error) {
-    console.error("Erreur recherche email :", error);
+    console.error("Erreur lors de la recherche par e-mail :", error);
     res.status(500).json({ result: false, error: "Erreur serveur" });
   }
 });

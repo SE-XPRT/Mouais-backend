@@ -7,13 +7,12 @@ const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
-// vérifie que tous les champs soient bien remplis
 router.post("/signup", (req, res) => {
   if (!checkBody(req.body, ["email", "password"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+    res.json({ result: false, error: "Champs manquants ou vides" });
     return;
   }
-  // vérifie si l'utilisateur à déjà un compte
+
   User.findOne({ email: req.body.email }).then((data) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.password, 10);
@@ -27,54 +26,53 @@ router.post("/signup", (req, res) => {
 
       newUser.save().then((newDoc) => {
         res.json({ result: true, token: newDoc.token, coins: newDoc.coins });
-        console.log("User created");
+        console.log("Utilisateur créé");
       });
     } else {
-      // Si l'utilisateur existe déjà dans la BDD
-      res.json({ result: false, error: "User already exists" });
-      console.log("User already exists");
+      res.json({ result: false, error: "Utilisateur déjà existant" });
+      console.log("Utilisateur déjà existant");
     }
   });
 });
 
 router.post("/signin", (req, res) => {
   if (!checkBody(req.body, ["email", "password"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
-    console.log("Missing or empty fields");
+    res.json({ result: false, error: "Champs manquants ou vides" });
+    console.log("Champs manquants ou vides");
     return;
   }
 
   User.findOne({ email: req.body.email }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
       res.json({ result: true, token: data.token, coins: data.coins });
-      console.log("User connected");
+      console.log("Utilisateur connecté");
     } else {
-      res.json({ result: false, error: "User not found or wrong password" });
-      console.log("User not found or wrong password");
+      res.json({ result: false, error: "Utilisateur introuvable ou mot de passe incorrect" });
+      console.log("Utilisateur introuvable ou mot de passe incorrect");
     }
   });
 });
 
 router.post("/delete", (req, res) => {
   if (!checkBody(req.body, ["token"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+    res.json({ result: false, error: "Champs manquants ou vides" });
     return;
   }
-  // user delete par le token
+
   User.deleteOne({ token: req.body.token }).then((result) => {
     if (result.deletedCount > 0) {
-      res.json({ result: true, message: "User supprimer" });
+      res.json({ result: true, message: "Utilisateur supprimé avec succès" });
     } else {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "L'utilisateur n'existe pas" });
     }
   });
 });
 
 router.get("/get", (req, res) => {
-  const token = req.query.token; // Récupérer le token depuis les query params
+  const token = req.query.token;
 
   if (!token) {
-    res.json({ result: false, error: "Missing token" });
+    res.json({ result: false, error: "Token manquant" });
     return;
   }
 
@@ -83,39 +81,36 @@ router.get("/get", (req, res) => {
       res.json({
         result: true,
         email: result.email,
-        pseudo: result.pseudo || "", // Renvoyer le pseudo s'il existe, sinon une chaîne vide
-        message: "User found",
+        pseudo: result.pseudo || "",
+        message: "Utilisateur trouvé",
       });
     } else {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "Utilisateur introuvable" });
     }
   });
 });
 
 router.post("/updateInfos", (req, res) => {
   if (!checkBody(req.body, ["token", "email"])) {
-    res.json({ result: false, error: "Missing or empty fields" });
+    res.json({ result: false, error: "Champs manquants ou vides" });
     return;
   }
-  User.updateOne(
-    { token: req.body.token },
-    { $set: { email: req.body.email } }
-  ).then((result) => {
+
+  User.updateOne({ token: req.body.token }, { $set: { email: req.body.email } }).then((result) => {
     if (result.modifiedCount > 0) {
-      res.json({ result: true, message: "User updated" });
+      res.json({ result: true, message: "Informations mises à jour" });
     } else {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "Utilisateur introuvable" });
     }
   });
 });
 
 router.post("/updatePseudo", async (req, res) => {
-  // Vérifier si le token est dans le body ou dans les query params
   const token = req.body.token || req.query.token;
   const pseudo = req.body.pseudo;
 
   if (!token || !pseudo) {
-    return res.json({ result: false, error: "Missing token or pseudo" });
+    return res.json({ result: false, error: "Token ou pseudo manquant" });
   }
 
   try {
@@ -129,14 +124,14 @@ router.post("/updatePseudo", async (req, res) => {
       res.json({
         result: true,
         pseudo: updatedUser.pseudo,
-        message: "Pseudo updated successfully",
+        message: "Pseudo mis à jour avec succès",
       });
     } else {
-      res.json({ result: false, error: "User not found" });
+      res.json({ result: false, error: "Utilisateur introuvable" });
     }
   } catch (error) {
-    console.error("Error updating pseudo:", error);
-    res.status(500).json({ result: false, error: "Error updating pseudo" });
+    console.error("Erreur lors de la mise à jour du pseudo :", error);
+    res.status(500).json({ result: false, error: "Erreur lors de la mise à jour du pseudo" });
   }
 });
 
@@ -144,11 +139,11 @@ router.post("/logout", (req, res) => {
   const token = req.body.token;
 
   if (!token) {
-    res.json({ result: false, error: "Missing token" });
+    res.json({ result: false, error: "Token manquant" });
     return;
   }
 
-  res.json({ result: true, message: "Logged out successfully" });
+  res.json({ result: true, message: "Déconnexion réussie" });
 });
 
 module.exports = router;
