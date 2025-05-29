@@ -1,5 +1,6 @@
 const User = require("../models/users");
 const Badge = require("../models/badges");
+const Photos = require("../models/photos");
 
 async function unlockBadgeIfEligible(userId, criteria) {
   const user = await User.findById(userId)
@@ -18,7 +19,8 @@ async function unlockBadgeIfEligible(userId, criteria) {
 
   switch (criteria) {
     case "firstPhotoUploaded":
-      isEligible = user.photos.length === 1;
+      const photoCount = await Photos.countDocuments({ userId });
+      isEligible = photoCount === 1;
       break;
     case "coins3":
       isEligible = user.coins >= 3;
@@ -35,14 +37,14 @@ async function unlockBadgeIfEligible(userId, criteria) {
 
   if (isEligible) {
     const badge = await Badge.findOne({ criteria });
-    if (!badge) return;
-
-    // Ajoute le badge à la liste des badges de l'utilisateur
-    user.badges.push(badge._id);
-    await user.save();
-
-    console.log(`Badge "${criteria}" débloqué pour ${user.pseudo}`);
+    if (badge) {
+      user.badges.push(badge._id);
+      await user.save();
+      return badge; // on renvoie le badge ici
+    }
   }
+
+  return null;
 }
 
 module.exports = { unlockBadgeIfEligible };
