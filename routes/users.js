@@ -44,7 +44,7 @@ router.post("/signin", (req, res) => {
 
   User.findOne({ email: req.body.email }).then((data) => {
     if (data && bcrypt.compareSync(req.body.password, data.password)) {
-      res.json({ result: true, token: data.token, coins: data.coins });
+      res.json({ result: true, token: data.token, coins: data.coins, pseudo: data.pseudo, });
       console.log("Utilisateur connecté");
     } else {
       res.json({ result: false, error: "Utilisateur introuvable ou mot de passe incorrect" });
@@ -145,5 +145,31 @@ router.post("/logout", (req, res) => {
 
   res.json({ result: true, message: "Déconnexion réussie" });
 });
+
+router.post("/updateCoins", async (req, res) => {
+  const { token, coins } = req.body;
+
+  if (!token || typeof coins !== "number" || isNaN(coins)) {
+    return res.json({ result: false, error: "Token ou coins invalide" });
+  }
+
+  try {
+    const user = await User.findOne({ token });
+
+    if (!user) {
+      return res.json({ result: false, error: "Utilisateur introuvable" });
+    }
+
+    user.coins = coins; 
+    await user.save(); 
+
+    res.json({ result: true, coins: user.coins });
+  } catch (error) {
+    console.error("Erreur updateCoins :", error);
+    res.status(500).json({ result: false, error: "Erreur serveur" });
+  }
+});
+
+
 
 module.exports = router;
