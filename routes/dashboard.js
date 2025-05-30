@@ -5,7 +5,6 @@ const Photo = require("../models/photos");
 const Record = require("../models/records");
 const Badge = require("../models/badges");
 
-// GET /dashboard/:token
 router.get("/:token", async (req, res) => {
   console.log("Token reçu :", req.params.token);
   const users = await User.find({});
@@ -52,7 +51,6 @@ router.get("/:token", async (req, res) => {
   });
 });
 
-// GET /dashboard/email/:email
 router.get("/email/:email", async (req, res) => {
   const email = req.params.email;
   console.log("Email reçu :", email);

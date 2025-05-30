@@ -88,7 +88,6 @@ router.post("/user/:userId", async (req, res) => {
     return res.status(404).json({ result: false, error: "Badge not found" });
   }
 
-  // Si le badge n'est pas déjà attribué
   if (!user.badges.includes(badge._id)) {
     user.badges.push(badge._id);
     await user.save();

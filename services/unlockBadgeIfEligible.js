@@ -9,7 +9,6 @@ async function unlockBadgeIfEligible(userId, criteria) {
     .populate("subscription");
   if (!user) return;
 
-  // Est-ce que le badge correspondant au critère a déjà été débloqué ?
   const alreadyUnlocked = user.badges.some(
     (badge) => badge.criteria === criteria
   );
@@ -40,7 +39,7 @@ async function unlockBadgeIfEligible(userId, criteria) {
     if (badge) {
       user.badges.push(badge._id);
       await user.save();
-      return badge; // on renvoie le badge ici
+      return badge;
     }
   }
 
