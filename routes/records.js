@@ -3,7 +3,6 @@ const router = express.Router();
 const Record = require("../models/records");
 const User = require("../models/users");
 
-// GET /records/:token
 router.get("/:token", async (req, res) => {
   try {
     console.log("Recherche user avec token:", req.params.token);
@@ -33,7 +32,6 @@ router.get("/:token", async (req, res) => {
   }
 });
 
-// POST /records
 router.post("/", async (req, res) => {
   const { token } = req.body;
 
@@ -60,7 +58,6 @@ router.post("/", async (req, res) => {
   }
 });
 
-// PUT /records/:token
 router.put("/:token", async (req, res) => {
   const { newRate } = req.body;
 
@@ -71,14 +68,11 @@ router.put("/:token", async (req, res) => {
     const record = await Record.findOne({ userId: user._id });
     if (!record) return res.status(404).json({ message: "Record not found" });
 
-    // Update photosTaken
     record.photosTaken += 1;
 
-    // Update averageRate
     const totalRate = record.averageRate * (record.photosTaken - 1) + newRate;
     record.averageRate = totalRate / record.photosTaken;
 
-    // Update averagePhotosPerDay
     const daysSinceStart =
       (new Date() - new Date(record.createdAt)) / (1000 * 60 * 60 * 24);
     record.averagePhotosPerDay =

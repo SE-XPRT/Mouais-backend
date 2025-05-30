@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema(
     provider: String,
     location: String,
     token: String,
-    pseudo: String,
+    pseudo: {type: String, default: "BG"},
     avatarURL: String,
     coins: Number,
     subscription: {

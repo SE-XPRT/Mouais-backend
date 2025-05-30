@@ -450,7 +450,6 @@ router.post("/analyze", async (req, res) => {
   }
 
   try {
-    // Vérifier que le user existe
     const user = await User.findOne({ token });
     if (!user) {
       return res
@@ -458,15 +457,13 @@ router.post("/analyze", async (req, res) => {
         .json({ result: false, message: "Utilisateur non trouvé" });
     }
 
-    // Ajouter les filtres à la photo correspondante
     const updatedPhoto = await Photos.findByIdAndUpdate(
       photoId,
       {
         $push: {
-          // Ajouter un élément dans un tableau existant dans un document
           analyse: {
-            ...filters, // Operation spread pour 'déplier' tous les champs de l'objet filters
-            createdAt: new Date(), // Ajout d'une date de création à chaque analyse
+            ...filters, 
+            createdAt: new Date(),
           },
         },
       },
