@@ -22,7 +22,7 @@ router.get("/:token", async (req, res) => {
         averagePhotosPerDay: 0,
       });
       await record.save();
-      return res.status(201).json(record); // 201 = Created
+      return res.status(201).json(record);
     }
 
     res.json(record);

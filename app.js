@@ -12,6 +12,7 @@ const photosRouter = require("./routes/photos");
 const dashboardRouter = require("./routes/dashboard");
 const badgesRoutes = require("./routes/badges");
 const recordsRoutes = require("./routes/records");
+var cors = require("cors");
 
 var app = express();
 
@@ -19,6 +20,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
